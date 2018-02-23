@@ -40,6 +40,26 @@ def create_sub_matrix(matrix,node_list):
     
     return sub_matrix
                 
+def compute_Q_g(A,graph_partition,g):
+    node_list = graph_partition[g];
+    A_g = create_sub_matrix(A,node_list)
+    P_g = compute_stationary_probabilities(A_g)
+    P_0 = compute_stationary_probabilities(A)
+    Q_g = 1
+    for i_g,i_0 in enumerate(node_list):
+        Q_g = Q_g *np.power( P_0[i_0]/P_g[i_g], P_g[i_g])
+     
+    return Q_g
+
+def compute_lambda_g(A,graph_partition,g):
+    nominator = compute_Q_g(A,graph_partition,g)
+    
+    denominator = 0
+    for l in range(len(graph_partition)):
+        denominator = denominator+compute_Q_g(A,graph_partition,l)
+    
+    lambda_g = nominator/denominator
+    return lambda_g
 
 
 G=nx.karate_club_graph()
@@ -59,13 +79,11 @@ for community_index in set(partition.values()) :
     graph_partition.append(node_list)
 
 
-    
-g = 1
-node_list = graph_partition[g];
-A_g = create_sub_matrix(A,)
-P_g = compute_stationary_probabilities(node_list)
-P_0 = compute_stationary_probabilities(A)
-product = 1
-for i_g,i_0 in enumerate(node_list):
-    product = product * P_g[i_g]/P_0[i_0]     
-    
+
+
+lambda_1 = compute_lambda_g(A,graph_partition,0)
+lambda_2 = compute_lambda_g(A,graph_partition,1)
+lambda_3 = compute_lambda_g(A,graph_partition,2)
+lambda_4 = compute_lambda_g(A,graph_partition,3)
+
+print(lambda_1+lambda_2+lambda_3+lambda_4)
