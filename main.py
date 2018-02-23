@@ -66,6 +66,6 @@ A_g = create_sub_matrix(A,)
 P_g = compute_stationary_probabilities(node_list)
 P_0 = compute_stationary_probabilities(A)
 product = 1
-for gi,0i in enumerate(node_list):
-    product = product * P_g[gi]/P_0[0i]     
+for i_g,i_0 in enumerate(node_list):
+    product = product * P_g[i_g]/P_0[i_0]     
     
