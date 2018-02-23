@@ -12,20 +12,20 @@ import numpy as np
 from numpy import linalg as LA
 
 
-def create_Ag(matrix, node_list):
+def create_Ag(A, node_list):
     """
-    Creates an NxN matrix containing only the edges which are relevant for the nodes given in node_list.
+    Returns (NxN) matrix containing only the edges which are relevant for the nodes given in node_list.
     """
-    Ag = matrix.copy()
+    Ag = A.copy()
     not_nodes = list(set(range(len(node_list))) - set(node_list))
     nn, mm = np.meshgrid(not_nodes, not_nodes)
     Ag[nn.flatten(), mm.flatten()] = 0 # will need to change when we switch to sparse matrices
     return Ag
-            
+
 
 def compute_Ags(A, communities):
     """
-    Computes all Ags for a given NxN matrix and communities.
+    Returns (NxNxM) Ags for a given NxN matrix and communities.
     Note: only needs to be done once per community specification.
     """
     Ags = np.zeros(A.shape[0], A.shape[1], communities)
@@ -36,7 +36,7 @@ def compute_Ags(A, communities):
 
 def compute_Pg(A):
     """
-    Computes the stationary distribution over the nodes given the edges described by A.
+    Returns (N) stationary distribution over the nodes given the edges described by A.
     """
     P = A / np.maximum(A.sum(axis=0), 1e-12+np.zeros(A.shape[1])) # avoids division by zero
     #Stationary probability:
@@ -48,7 +48,8 @@ def compute_Pg(A):
 
 def compute_Pgs(A, communities):
     """
-    Computes the stationary distributions for all subgraphs of A.
+    Returns (NxM) stationary distributions for all subgraphs of A.
+    Note: only needs to be done once per community specification.
     """
     Ags = compute_Ags(A, communities)
     Pgs = np.zeros(Ags.shape[0], Ags.shape[2])
@@ -60,7 +61,7 @@ def compute_Pgs(A, communities):
 
 def compute_Qg(P0, Pg):
     """
-    Computes Qg for a single subgraph.
+    Computes (1) Qg for a single subgraph.
     """
     Qg = np.prod(np.power(P0/Pg, Pg))
     #Qg = np.exp(np.sum(Pg*np.log(P0/Pg))) # we should test which one is faster
@@ -69,7 +70,7 @@ def compute_Qg(P0, Pg):
 
 def compute_Qgs(P0, Pgs):
     """
-    Computes Qg for each subgraph described by Pgs.
+    Computes (M) Qgs, one for each subgraph described by Pgs.
     """
     Qgs = np.zeros(Pgs.shape[1])
     for g in range(Pgs.shape[2]):
@@ -80,7 +81,7 @@ def compute_Qgs(P0, Pgs):
 
 def compute_lambda_gs(P0, Pgs):
     """
-    Computes the linear coefficients that reconstruct the graph with minimal information loss.
+    Computes (M) linear coefficients that reconstruct the graph with minimal information loss.
     """
     Q_g = compute_Q_gs(P0, Pgs)
     return Q_g/Q_g.sum()
