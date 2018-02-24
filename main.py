@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Feb 23 08:42:04 2018
-
-@author: andre
+@author: Andrea Ramazzina, Lukas Mericle
 """
 
 import community # what is this library? --Lukas
@@ -12,9 +10,21 @@ import numpy as np
 from numpy import linalg as LA
 
 
+def list_subgraphs(partition):
+    """
+    Returns a list of the indices of the nodes within a partition.
+    """
+    graph_partition = []
+    for community_index in set(partition.values()):
+        node_list = [node for node in partition.keys()
+                                    if partition[node] == community_index]
+        graph_partition.append(node_list)
+
+
 def write_LL(A, fname="A.txt"):
     """
     Write a link list file from a matrix.
+    http://www.mapequation.org/code.html#Link-list-format
     """
     f = open(fname, "w")
     ii,jj = np.where(A!=0)
@@ -35,7 +45,7 @@ def create_Ag(A, node_list):
     return Ag
 
 
-def compute_Ags(A, communities):
+def create_Ags(A, communities):
     """
     Returns (NxNxM) Ags for a given NxN matrix and communities.
     Note: only needs to be done once per community specification.
@@ -63,7 +73,7 @@ def compute_Pgs(A, communities):
     Returns (NxM) stationary distributions for all subgraphs of A.
     Note: only needs to be done once per community specification.
     """
-    Ags = compute_Ags(A, communities)
+    Ags = create_Ags(A, communities)
     Pgs = np.zeros(Ags.shape[0], Ags.shape[2])
     for g in range(Ags.shape[2]):
         Ag = Ags[:,:,g]
@@ -103,12 +113,7 @@ G=nx.karate_club_graph()
 A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 
 partition = community.best_partition(G) # Louvain algorithm
-# Create a list of subgraphs
-graph_partition = []
-for community_index in set(partition.values()):
-    node_list = [node for node in partition.keys()
-                                if partition[node] == community_index]
-    graph_partition.append(node_list)
+graph_partition = list_subgraphs(partition)
 
 P0 = compute_Pg(A)
 Pgs = compute_Pgs(A, graph_partition)
