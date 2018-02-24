@@ -6,8 +6,9 @@ def compute_Qg(P0, Pg):
     """
     Computes (1) Qg for a single subgraph.
     """
-    Qg = np.prod(np.power(Pg/P0, -Pg))
-    #Qg = np.exp(np.sum(-Pg*np.log(Pg/P0))) # we should test which one is faster
+    nz = np.where(P0!=0)[0]
+    Qg = np.prod(np.power(Pg[nz]/P0[nz], -Pg[nz]))
+    #Qg = np.exp(np.sum(-Pg[nz]*np.log(Pg[nz]/P0[nz]))) # we should test which one is faster
     return Qg
 
 

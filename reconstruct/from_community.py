@@ -7,14 +7,16 @@ def compute_mug(P0, Pstar, Pg):
     """
     Returns (1) mu_g for given Pg and Pstar.
     """
-    return np.sum(Pg*np.log(Pstar/P0))
+    nz = np.where(P0!=0)[0]
+    return np.sum(Pg[nz]*np.log(Pstar[nz]/P0[nz]))
 
 
 def compute_rhogk(Pstar, Pg, Pk):
     """
     Returns (1) rho_gk for given Pg, Pk, and Pstar.
     """
-    return np.sum(Pg*Pk/Pstar)
+    nz = np.where(Pstar!=0)[0]
+    return np.sum(Pg[nz]*Pk[nz]/Pstar[nz])
 
 
 def compute_gradient(P0, Pstar, Pgs):
@@ -43,7 +45,7 @@ def update_lambdas(lambda_t, dHdL, eta)
     Returns (M) the updated lambdas after one step of gradient descent and
     normalization.
     """
-    lambda_tp1 = lambda_t - eta*dHdL
+    lambda_tp1 = np.maximum(lambda_t - eta*dHdL, np.zeros(dHdL.shape[0])) # enforces positive lambdas, not sure if needed
     return lambda_tp1/lambda_tp1.sum()
 
 

@@ -7,7 +7,8 @@ def kl_divergence(P0, P1):
     """
     Returns (1) the Kullback-Leibler divergence (K[P0 ; P1]).
     """
-    return np.sum(P1*np.log(P1/P0))
+    nz = np.where(P0!=0)[0]
+    return np.sum(P1[nz]*np.log(P1[nz]/P0[nz]))
 
 
 def compute_Pg(A):
@@ -20,7 +21,7 @@ def compute_Pg(A):
     w, v = eig(P.T)
     Pg = v[:,w.argmax()]
     print(Pg.sum()) # perhaps already normalized?
-    Pg = Pg/Pg.sum()
+    Pg /= Pg.sum()
     return Pg.real
 
 
