@@ -5,7 +5,7 @@
 
 from reconstruct.from_partition import *
 from reconstruct.from_community import *
-from community import * # what is this library? --Lukas
+from community import *
 from mapeq_interface import *
 import networkx as nx
 import matplotlib.pyplot as plt

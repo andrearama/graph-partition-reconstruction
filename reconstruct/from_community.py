@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import norm
-from utils import *
+from reconstruct.utils import *
 
 
 def compute_mug(P0, Pstar, Pg):
@@ -40,7 +40,7 @@ def compute_gradient(P0, Pstar, Pgs):
     return dHdL
 
 
-def update_lambdas(lambda_t, dHdL, eta)
+def update_lambdas(lambda_t, dHdL, eta):
     """
     Returns (M) the updated lambdas after one step of gradient descent and
     normalization.
