@@ -12,6 +12,18 @@ import numpy as np
 from numpy import linalg as LA
 
 
+def write_LL(A, fname="A.txt"):
+    """
+    Write a link list file from a matrix.
+    """
+    f = open(fname, "w")
+    ii,jj = np.where(A!=0)
+    for i,j in zip(ii, jj):
+        w = A[i,j]
+        f.write("{} {} {}\n".format(j+1, i+1, w))
+    f.close()
+
+
 def create_Ag(A, node_list):
     """
     Returns (NxN) matrix containing only the edges which are relevant for the nodes given in node_list.
