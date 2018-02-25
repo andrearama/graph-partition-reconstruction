@@ -17,7 +17,7 @@ def compute_Qgs(P0, Pgs):
     Computes (M) Qgs, one for each subgraph described by Pgs.
     """
     Qgs = np.zeros(Pgs.shape[1])
-    for g in range(Pgs.shape[2]):
+    for g in range(Pgs.shape[1]):
         Qgs[g] = compute_Qg(P0, Pgs[:,g])
     return Qgs
 
