@@ -10,7 +10,7 @@ def list_subgraphs(partition):
         node_list = [node for node in partition.keys()
                                         if partition[node] == community_index]
         graph_partition.append(node_list)
-
+    return graph_partition
 
 def create_Ag(A, node_list):
     """
