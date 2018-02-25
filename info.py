@@ -31,7 +31,7 @@ def compute_Pgs(A, communities):
     Note: only needs to be done once per community specification.
     """
     Ags = create_Ags(A, communities)
-    Pgs = np.zeros(Ags.shape[0], Ags.shape[2])
+    Pgs = np.zeros([Ags.shape[0], Ags.shape[2]])
     for g in range(Ags.shape[2]):
         Ag = Ags[:,:,g]
         Pgs[:,g] = compute_Pg(Ag)
