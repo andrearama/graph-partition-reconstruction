@@ -7,7 +7,7 @@ def compute_mug(P0, Pstar, Pg):
     """
     Returns (1) mu_g for given Pg and Pstar.
     """
-    nz = np.where(P0!=0)[0]
+    nz = np.where((P0!=0) & (Pstar!=0))[0]
     return np.sum(Pg[nz]*np.log(Pstar[nz]/P0[nz]))
 
 
@@ -26,17 +26,16 @@ def compute_gradient(P0, Pstar, Pgs):
     m = Pgs.shape[1]
     dHdL = np.zeros(m)
     for k in range(m):
-        Pk = Pgs[k]
-        for g in range(1,m-1):
-            Pg = Pgs[g]
+        Pk = Pgs[:,k]
+        for g in range(m-1):
+            Pg = Pgs[:,g]
             for h in range(g+1,m):
-                Ph = Pgs[h]
+                Ph = Pgs[:,h]
                 mu_g = compute_mug(P0, Pstar, Pg)
                 mu_h = compute_mug(P0, Pstar, Ph)
                 rho_gk = compute_rhogk(Pstar, Pg, Pk)
                 rho_hk = compute_rhogk(Pstar, Ph, Pk)
                 dHdL[k] += (mu_g - mu_h) * (rho_gk - rho_hk)
-
     return dHdL
 
 

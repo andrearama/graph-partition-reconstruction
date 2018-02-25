@@ -5,9 +5,11 @@
 
 from reconstruct.from_partition import *
 from reconstruct.from_community import *
+from reconstruct.utils import *
 from community1 import *
-import community
+from info import *
 from mapeq_interface import *
+import community
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,8 +21,14 @@ A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sp
 partition = community.best_partition(G)
 graph_partition = list_subgraphs(partition)
 
-P0 = compute_Pg(A)
+P0 = compute_Pg(A, list(range(A.shape[0])), A.shape[0])
 Pgs = compute_Pgs(A, graph_partition)
-lambda_gs = compute_lambda_gs(P0, Pgs)
-
-print(lambda_gs)
+lambda_gs1 = compute_lambda_gs(P0, Pgs)
+print(lambda_gs1)
+lambda_gs2 = optimize_lambdas(P0, Pgs)
+print(lambda_gs2)
+Pstar = compute_Pstar(Pgs, lambda_gs2)
+mus = np.zeros(Pgs.shape[1])
+for i in range(Pgs.shape[1]):
+    mus[i] = compute_mug(P0, Pstar, Pgs[:,i])
+print(mus, mus.mean())

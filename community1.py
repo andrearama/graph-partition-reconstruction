@@ -18,9 +18,8 @@ def create_Ag(A, node_list):
     nodes given in node_list.
     """
     Ag = A.copy()
-    not_nodes = list(set(range(len(node_list))) - set(node_list))
-    nn, mm = np.meshgrid(not_nodes, not_nodes)
-    Ag[nn.flatten(), mm.flatten()] = 0 # will need to change when we switch to sparse matrices
+    Ag = Ag[node_list,:]
+    Ag = Ag[:,node_list]
     return Ag
 
 
@@ -29,9 +28,7 @@ def create_Ags(A, communities):
     Returns (NxNxM) Ags for a given NxN matrix and communities.
     Note: only needs to be done once per community specification.
     """
-    Ags = np.zeros([A.shape[0], A.shape[1], len(communities)])
-    for g,node_list in enumerate(communities):
-        Ags[:,:,g] = create_Ag(A, node_list)
+    Ags = []
+    for node_list in communities:
+        Ags.append(create_Ag(A, node_list))
     return Ags
-
-
