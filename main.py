@@ -15,7 +15,7 @@ import numpy as np
 G=nx.karate_club_graph()
 A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 
-partition = louvain(G)
+partition = community.best_partition(G)
 graph_partition = list_subgraphs(partition)
 
 P0 = compute_Pg(A)
