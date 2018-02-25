@@ -48,7 +48,7 @@ def update_lambdas(lambda_t, dHdL, eta):
     return lambda_tp1/lambda_tp1.sum()
 
 
-def optimize_lambdas(P0, Pgs, eta=1e-3, T=1e-9):
+def optimize_lambdas(P0, Pgs, eta=1e-3, T=1e-12):
     """
     Returns (M) the lambdas that minimize the cost function related to finding
     an optimal Pstar.
