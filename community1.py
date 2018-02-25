@@ -35,8 +35,3 @@ def create_Ags(A, communities):
     return Ags
 
 
-def louvain(G):
-    """
-    Returns the partition of G according to the Louvain algorithm.
-    """
-    pass
