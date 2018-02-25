@@ -29,7 +29,7 @@ def create_Ags(A, communities):
     Returns (NxNxM) Ags for a given NxN matrix and communities.
     Note: only needs to be done once per community specification.
     """
-    Ags = np.zeros(A.shape[0], A.shape[1], communities)
+    Ags = np.zeros(A.shape[0], A.shape[1], len(communities))
     for g,node_list in enumerate(communities):
         Ags[:,:,g] = create_Ag(A, node_list)
     return Ags
