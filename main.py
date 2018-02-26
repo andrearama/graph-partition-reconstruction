@@ -16,6 +16,8 @@ import numpy as np
 G = nx.karate_club_graph()
 #G = nx.davis_southern_women_graph()
 #G = nx.florentine_families_graph()
+#G = nx.connected_caveman_graph(8, 6)
+G=convert_node_labels_to_integers(G) #(Needed for the plotting)
 A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 partition = louvain(G)
 graph_partition = list_subgraphs(partition)
