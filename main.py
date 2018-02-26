@@ -38,3 +38,6 @@ p2o_lambdas1 = p2o_lambdas(P0, Pgs)
 print(p2o_lambdas1)
 p2o_lambdas2 = optimize_lambdas(P0, Pgs, dir="p2o")
 print(p2o_lambdas2)
+
+
+draw_graph(G, graph_partition)
