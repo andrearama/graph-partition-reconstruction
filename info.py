@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.linalg import eig
 from community1 import create_Ags
+import networkx as nx
 
 
 def kl_divergence(P0, P1):
@@ -36,3 +37,22 @@ def compute_Pgs(A, communities):
     for g,(Ag,node_list) in enumerate(zip(Ags, communities)):
         Pgs[:,g] = compute_Pg(Ag, node_list, A.shape[0])
     return Pgs
+
+
+def draw_graph(G, graph_partition):
+    """
+    Draw the network in analysis.
+    Partitions are coloured in different colors.
+    """
+    partition_number = len(graph_partition)
+    pos = nx.spring_layout(G)
+    
+    for count,list_nodes in enumerate (graph_partition) :
+                
+        color = count/partition_number
+        nx.draw_networkx_nodes(G, pos, list_nodes, node_size = 20,
+                                    node_color = (1- color, color,color) )
+    
+    
+    nx.draw_networkx_edges(G, pos, alpha=0.5)
+    plt.show()
