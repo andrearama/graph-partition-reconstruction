@@ -10,7 +10,6 @@ from community1 import *
 from info import *
 from mapeq_interface import *
 import networkx as nx
-import matplotlib.pyplot as plt
 import numpy as np
 
 
