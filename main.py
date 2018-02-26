@@ -21,13 +21,13 @@ G, labels = scrub_graph(G)
 A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 
 partition = louvain(G)
-graph_partition = list_subgraphs(partition)
-print(graph_partition)
+communities = list_subgraphs(partition)
+print(communities)
 
 print()
 
 P0 = compute_Pg(A, list(range(A.shape[0])), A.shape[0])
-Pgs = compute_Pgs(A, graph_partition)
+Pgs = compute_Pgs(A, communities)
 
 o2p_lambdas1 = o2p_lambdas(P0, Pgs)
 print(o2p_lambdas1)
@@ -48,4 +48,4 @@ p2o_Pstar = compute_Pstar(Pgs, p2o_lambdas1)
 print(kl_divergence(P0, o2p_Pstar)/len(P0))
 print(kl_divergence(p2o_Pstar, P0)/len(P0))
 
-draw_graph(G, graph_partition)
+draw_graph(G, communities)

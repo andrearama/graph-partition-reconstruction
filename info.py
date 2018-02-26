@@ -40,17 +40,17 @@ def compute_Pgs(A, communities):
     return Pgs
 
 
-def draw_graph(G, graph_partition):
+def draw_graph(G, communities):
     """
     Draw the network in analysis.
     Partitions are coloured in different colors.
     """
-    m = len(graph_partition)
+    m = len(communities)
     pos = nx.spring_layout(G)
 
-    for count,list_nodes in enumerate(graph_partition):
+    for count,node_list in enumerate(communities):
         color = count/m
-        nx.draw_networkx_nodes(G, pos, list_nodes, node_size=20,
+        nx.draw_networkx_nodes(G, pos, node_list, node_size=20,
                                             node_color=(1-color, color, color))
     nx.draw_networkx_edges(G, pos, alpha=0.5)
     plt.show()
