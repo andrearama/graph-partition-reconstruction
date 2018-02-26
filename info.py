@@ -2,7 +2,7 @@ import numpy as np
 from numpy.linalg import eig
 from community1 import create_Ags
 import networkx as nx
-
+import matplotlib.pyplot as plt
 
 def kl_divergence(P0, P1):
     """
