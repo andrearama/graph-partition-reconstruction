@@ -10,7 +10,6 @@ from community1 import *
 from info import *
 from mapeq_interface import *
 import networkx as nx
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -19,9 +18,12 @@ G = nx.karate_club_graph()
 #G = nx.florentine_families_graph()
 A = nx.to_numpy_matrix(G)
 labels = G.nodes
+#G = nx.connected_caveman_graph(8, 6)
+G=convert_node_labels_to_integers(G) #(Needed for the plotting)
+A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 partition = louvain(G)
 graph_partition = list_subgraphs(partition)
-print(labeled_partition(graph_partition, labels))
+print(graph_partition)
 
 print()
 
@@ -48,3 +50,5 @@ print(kl_divergence(P0, o2p_Pstar)/len(P0))
 print(kl_divergence(p2o_Pstar, P0)/len(P0))
 
 run_infomap("ninetriangles")
+
+draw_graph(G, graph_partition)
