@@ -14,6 +14,14 @@ def list_subgraphs(partition):
         graph_partition.append(node_list)
     return graph_partition
 
+
+def labeled_partition(partition, labels):
+    subgraph_labels = []
+    for i in range(len(partition)):
+        subgraph_labels.append([lbl for j,lbl in enumerate(labels)
+                                                        if j in partition[i]])
+    return subgraph_labels
+
 def create_Ag(A, node_list):
     """
     Returns (nxn) matrix containing only the edges which are relevant for the

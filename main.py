@@ -17,10 +17,11 @@ import numpy as np
 G = nx.karate_club_graph()
 #G = nx.davis_southern_women_graph()
 #G = nx.florentine_families_graph()
-A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
+A = nx.to_numpy_matrix(G)
+labels = G.nodes
 partition = louvain(G)
 graph_partition = list_subgraphs(partition)
-print(graph_partition)
+print(labeled_partition(graph_partition, labels))
 
 print()
 
@@ -38,3 +39,12 @@ p2o_lambdas1 = p2o_lambdas(P0, Pgs)
 print(p2o_lambdas1)
 p2o_lambdas2 = optimize_lambdas(P0, Pgs, dir="p2o")
 print(p2o_lambdas2)
+
+print()
+
+o2p_Pstar = compute_Pstar(Pgs, o2p_lambdas1)
+p2o_Pstar = compute_Pstar(Pgs, p2o_lambdas1)
+print(kl_divergence(P0, o2p_Pstar)/len(P0))
+print(kl_divergence(p2o_Pstar, P0)/len(P0))
+
+run_infomap("ninetriangles")

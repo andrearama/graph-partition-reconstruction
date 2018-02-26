@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.linalg import norm
 from reconstruct.utils import *
 
 
@@ -79,9 +78,9 @@ def optimize_lambdas(P0, Pgs, dir="p2o", eta=1e-3, T=1e-12):
         raise Error("`dir` parameter not recognized.")
 
     m = Pgs.shape[1]
-    lambda_tp1 = np.random.rand(m)
-    lambda_t = np.random.rand(m)
-    while norm(lambda_tp1-lambda_t) > T:
+    lambda_tp1 = np.ones(m)/m
+    lambda_t = np.zeros(m)
+    while np.linalg.norm(lambda_tp1-lambda_t) > T:
         lambda_t = lambda_tp1.copy()
         Pstar = compute_Pstar(Pgs, lambda_t)
         dHdL = compute_gradient(P0, Pstar, Pgs, f_mu, f_rho)
