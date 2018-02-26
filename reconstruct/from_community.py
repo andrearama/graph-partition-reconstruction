@@ -3,7 +3,7 @@ from numpy.linalg import norm
 from reconstruct.utils import *
 
 
-def compute_mug(P0, Pstar, Pg):
+def o2p_mug(P0, Pstar, Pg):
     """
     Returns (1) mu_g for given Pg and Pstar.
     """
@@ -11,7 +11,7 @@ def compute_mug(P0, Pstar, Pg):
     return np.sum(Pg[nz]*np.log(Pstar[nz]/P0[nz]))
 
 
-def compute_rhogk(Pstar, Pg, Pk):
+def o2p_rhogk(P0, Pstar, Pg, Pk):
     """
     Returns (1) rho_gk for given Pg, Pk, and Pstar.
     """
@@ -19,7 +19,23 @@ def compute_rhogk(Pstar, Pg, Pk):
     return np.sum(Pg[nz]*Pk[nz]/Pstar[nz])
 
 
-def compute_gradient(P0, Pstar, Pgs):
+def p2o_mug(P0, Pstar, Pg):
+    """
+    Returns (1) mu_g for given Pg and Pstar.
+    """
+    nz = np.where(Pstar!=0)[0]
+    return np.sum(P0[nz]*Pg[nz]/Pstar[nz])
+
+
+def p2o_rhogk(P0, Pstar, Pg, Pk):
+    """
+    Returns (1) rho_gk for given Pg, Pk, and Pstar.
+    """
+    nz = np.where(Pstar!=0)[0]
+    return -np.sum(P0[nz]*Pg[nz]*Pk[nz]/np.power(Pstar[nz], 2))
+
+
+def compute_gradient(P0, Pstar, Pgs, f_mu, f_rho):
     """
     Computes (M) the gradient in lambda-space.
     """
@@ -31,10 +47,10 @@ def compute_gradient(P0, Pstar, Pgs):
             Pg = Pgs[:,g]
             for h in range(g+1,m):
                 Ph = Pgs[:,h]
-                mu_g = compute_mug(P0, Pstar, Pg)
-                mu_h = compute_mug(P0, Pstar, Ph)
-                rho_gk = compute_rhogk(Pstar, Pg, Pk)
-                rho_hk = compute_rhogk(Pstar, Ph, Pk)
+                mu_g = f_mu(P0, Pstar, Pg)
+                mu_h = f_mu(P0, Pstar, Ph)
+                rho_gk = f_rho(P0, Pstar, Pg, Pk)
+                rho_hk = f_rho(P0, Pstar, Ph, Pk)
                 dHdL[k] += (mu_g - mu_h) * (rho_gk - rho_hk)
     return dHdL
 
@@ -48,18 +64,27 @@ def update_lambdas(lambda_t, dHdL, eta):
     return lambda_tp1/lambda_tp1.sum()
 
 
-def optimize_lambdas(P0, Pgs, eta=1e-3, T=1e-12):
+def optimize_lambdas(P0, Pgs, dir="p2o", eta=1e-3, T=1e-12):
     """
     Returns (M) the lambdas that minimize the cost function related to finding
     an optimal Pstar.
     """
+    if dir == "o2p":
+        f_mu = o2p_mug
+        f_rho = o2p_rhogk
+    elif dir == "p2o":
+        f_mu = p2o_mug
+        f_rho = p2o_rhogk
+    else:
+        raise Error("`dir` parameter not recognized.")
+
     m = Pgs.shape[1]
     lambda_tp1 = np.random.rand(m)
     lambda_t = np.random.rand(m)
     while norm(lambda_tp1-lambda_t) > T:
         lambda_t = lambda_tp1.copy()
         Pstar = compute_Pstar(Pgs, lambda_t)
-        dHdL = compute_gradient(P0, Pstar, Pgs)
+        dHdL = compute_gradient(P0, Pstar, Pgs, f_mu, f_rho)
         lambda_tp1 = update_lambdas(lambda_t, dHdL, eta)
 
     return lambda_tp1

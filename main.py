@@ -14,25 +14,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-#G = nx.karate_club_graph()
+G = nx.karate_club_graph()
 #G = nx.davis_southern_women_graph()
-G = nx.florentine_families_graph()
+#G = nx.florentine_families_graph()
 A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 partition = louvain(G)
 graph_partition = list_subgraphs(partition)
 print(graph_partition)
 
+print()
+
 P0 = compute_Pg(A, list(range(A.shape[0])), A.shape[0])
 Pgs = compute_Pgs(A, graph_partition)
 
-lambda_gs1 = compute_lambda_gs(P0, Pgs)
-print(lambda_gs1)
-lambda_gs2 = optimize_lambdas(P0, Pgs)
-print(lambda_gs2)
+o2p_lambdas1 = o2p_lambdas(P0, Pgs)
+print(o2p_lambdas1)
+o2p_lambdas2 = optimize_lambdas(P0, Pgs, dir="o2p")
+print(o2p_lambdas2)
 
-Pstar = compute_Pstar(Pgs, lambda_gs2)
+print()
 
-mus = np.zeros(Pgs.shape[1])
-for i in range(Pgs.shape[1]):
-    mus[i] = compute_mug(P0, Pstar, Pgs[:,i])
-print(mus.mean())
+p2o_lambdas1 = p2o_lambdas(P0, Pgs)
+print(p2o_lambdas1)
+p2o_lambdas2 = optimize_lambdas(P0, Pgs, dir="p2o")
+print(p2o_lambdas2)

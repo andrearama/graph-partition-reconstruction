@@ -22,10 +22,26 @@ def compute_Qgs(P0, Pgs):
     return Qgs
 
 
-def compute_lambda_gs(P0, Pgs):
+def o2p_lambdas(P0, Pgs):
     """
     Computes (M) linear coefficients that reconstruct the graph with minimal
-    information loss.
+    information loss based on the KL-divergence of moving from the original
+    graph to the partition of the graph.
     """
     Qgs = compute_Qgs(P0, Pgs)
     return Qgs/Qgs.sum()
+
+
+def p2o_lambdas(P0, Pgs):
+    """
+    Computes (M) linear coefficients that reconstruct the graph with minimal
+    information loss based on the KL-divergence of moving from the partition of
+    the graph to the original graph.
+    """
+    nz = np.where(Pgs!=0)
+    colP0 = P0.reshape((-1,1))
+    P0s = np.hstack([colP0]*Pgs.shape[1])
+    lambdas = np.zeros(Pgs.shape[1])
+    for i,g in zip(nz[0],nz[1]):
+        lambdas[g] += P0s[i,g]
+    return lambdas
