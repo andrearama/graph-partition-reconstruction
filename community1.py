@@ -22,6 +22,7 @@ def labeled_partition(partition, labels):
                                                         if j in partition[i]])
     return subgraph_labels
 
+
 def create_Ag(A, node_list):
     """
     Returns (nxn) matrix containing only the edges which are relevant for the
@@ -43,9 +44,14 @@ def create_Ags(A, communities):
         Ags.append(create_Ag(A, node_list))
     return Ags
 
+
 def louvain(G):
     """
     Compute the partition of the graph G according to the Louvain algorithm.
     Wrapper function for community.best_partition().
     """
-    return lvn.best_partition(convert_node_labels_to_integers(G)) # the convert... function is needed because the labels on graphs may not always be integers
+    return lvn.best_partition(G) # the convert... function is needed because the labels on graphs may not always be integers
+
+
+def scrub_graph(G):
+    return convert_node_labels_to_integers(G), G.nodes
