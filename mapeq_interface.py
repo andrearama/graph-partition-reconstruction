@@ -16,8 +16,7 @@ def write_LL(A, fname="A"):
     f.close()
 
 
-def run_infomap(src_name, src_ext=".net",
-                            options=[ "-dp", "0", "--overlapping", "--silent"]):
+def run_infomap(src_name, src_ext=".net", options=[ "-dp", "0", "--silent"]):
     """
     Run Infomap on the given file (should be housed in mapeq/graphs/).
 

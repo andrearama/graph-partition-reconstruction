@@ -16,6 +16,10 @@ def list_subgraphs(communities):
 
 
 def labeled_communities(communities, labels):
+    """
+    Replaces the integer indices in a partition specification with the
+    appropriate node labels.
+    """
     subgraph_labels = []
     for i in range(len(communities)):
         subgraph_labels.append([lbl for j,lbl in enumerate(labels)
@@ -54,4 +58,8 @@ def louvain(G):
 
 
 def scrub_graph(G):
+    """
+    Converts the graph to one with integer indices, and provides the labels in a
+    separate array.
+    """
     return convert_node_labels_to_integers(G), G.nodes

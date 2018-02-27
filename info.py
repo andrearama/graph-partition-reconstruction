@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import sparse
 from numpy.linalg import eig
 from community1 import create_Ags
 import networkx as nx
@@ -18,10 +19,12 @@ def compute_Pg(A, node_list, dim):
     Returns (N) stationary distribution over the nodes given the edges described
     by A.
     """
-    Astar = A / np.maximum(A.sum(axis=0), 1e-12+np.zeros(A.shape[0])) # avoids division by zero
-    w, v = eig(Astar)
-    Pg_part = v[:,w.argmax()]
-    Pg_part = (Pg_part/Pg_part.sum()).real
+    m = A.shape[1]
+    col_sums = A.sum(axis=0)
+    normalize = col_sums.maximum(np.zeros(m)+1e-12)
+    Astar = A.data / np.take(normalize, A.indices) # https://stackoverflow.com/questions/16043299/substitute-for-numpy-broadcasting-using-scipy-sparse-csc-matrix
+    _, v = sparse.linalg.eigs(Astar, k=1, which='LM')
+    Pg_part = (v/v.sum()).real
     Pg = np.zeros(dim)
     for j,i in enumerate(node_list):
         Pg[i] = Pg_part[j]

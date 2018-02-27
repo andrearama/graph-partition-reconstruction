@@ -18,7 +18,8 @@ G = nx.karate_club_graph()
 #G = nx.florentine_families_graph()
 #G = nx.connected_caveman_graph(8, 6)
 G, labels = scrub_graph(G)
-A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
+A = nx.to_scipy_sparse_matrix(G, format='csc') # csc since we are primarily interested in multiplying/normalizing columns
+#A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 
 partition = louvain(G)
 communities = list_subgraphs(partition)
