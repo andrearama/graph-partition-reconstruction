@@ -3,23 +3,23 @@ import community as lvn
 from networkx import convert_node_labels_to_integers
 
 
-def list_subgraphs(partition):
+def list_subgraphs(communities):
     """
-    Returns a list of the indices of the nodes within a partition.
+    Returns a list of the indices of the nodes within a communities.
     """
-    graph_partition = []
-    for community_index in set(partition.values()):
-        node_list = [node for node in partition.keys()
-                                        if partition[node] == community_index]
-        graph_partition.append(node_list)
-    return graph_partition
+    graph_communities = []
+    for community_index in set(communities.values()):
+        node_list = [node for node in communities.keys()
+                                        if communities[node] == community_index]
+        graph_communities.append(node_list)
+    return graph_communities
 
 
-def labeled_partition(partition, labels):
+def labeled_communities(communities, labels):
     subgraph_labels = []
-    for i in range(len(partition)):
+    for i in range(len(communities)):
         subgraph_labels.append([lbl for j,lbl in enumerate(labels)
-                                                        if j in partition[i]])
+                                                        if j in communities[i]])
     return subgraph_labels
 
 
@@ -47,10 +47,10 @@ def create_Ags(A, communities):
 
 def louvain(G):
     """
-    Compute the partition of the graph G according to the Louvain algorithm.
+    Compute the communities of the graph G according to the Louvain algorithm.
     Wrapper function for community.best_partition().
     """
-    return lvn.best_partition(G) # the convert... function is needed because the labels on graphs may not always be integers
+    return lvn.best_partition(G)
 
 
 def scrub_graph(G):
