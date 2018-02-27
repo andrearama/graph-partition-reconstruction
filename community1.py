@@ -33,8 +33,8 @@ def create_Ag(A, node_list):
     nodes given in node_list.
     """
     Ag1 = A.copy()
-    Ag2 = Ag1[node_list,:]
-    Ag  = Ag2[:,node_list]
+    Ag2 = Ag1.tocsr()[node_list,:]
+    Ag  = Ag2.tocsc()[:,node_list]
     return Ag
 
 

@@ -21,8 +21,13 @@ def compute_Pg(A, node_list, dim):
     """
     m = A.shape[1]
     col_sums = A.sum(axis=0)
-    normalize = col_sums.maximum(np.zeros(m)+1e-12)
-    Astar = A.data / np.take(normalize, A.indices) # https://stackoverflow.com/questions/16043299/substitute-for-numpy-broadcasting-using-scipy-sparse-csc-matrix
+    normalize = np.maximum(col_sums, np.zeros(m)+1e-12)
+    Acsr = A.tocsr()
+    print(np.array(np.take(normalize, Acsr.indices)).flatten())
+    data = Acsr.data / np.array(np.take(normalize, Acsr.indices)).flatten() # adapted from https://stackoverflow.com/questions/16043299/substitute-for-numpy-broadcasting-using-scipy-sparse-csc-matrix
+    Astar = sparse.csr_matrix((data, Acsr.indices.copy(), Acsr.indptr.copy()),
+                                                    shape=Acsr.shape).tocsc()
+    print(Astar)
     _, v = sparse.linalg.eigs(Astar, k=1, which='LM')
     Pg_part = (v/v.sum()).real
     Pg = np.zeros(dim)
