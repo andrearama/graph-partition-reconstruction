@@ -1,8 +1,11 @@
 import numpy as np
 from scipy import sparse
 import networkx as nx
+from mapeq_interface import write_LL
+from os.path import exists
 
-class Graph(object):
+
+class MyGraph(object):
 
 
     def __init__(self):
@@ -22,18 +25,14 @@ class Graph(object):
 
 
     def symmetrize(self):
-        # assumes correct upper triangle, negligible lower triangle.
-        # ignores main diagonal
-
-        upper = sparse.triu(self.adj, k=1)
-        self.adj = upper + upper.transpose()
+        self.adj = self.adj.maximum(self.adj.transpose())
 
 
     def to_nx(self):
         return nx.convert_matrix.from_scipy_sparse_matrix(self.adj)
 
 
-class ERGraph(Graph):
+class ERGraph(MyGraph):
 
 
     def __init__(self, n, p):
@@ -46,7 +45,7 @@ class ERGraph(Graph):
         self.adj = self.adj.tocsc()
 
 
-class SWGraph(Graph):
+class SWGraph(MyGraph):
 
 
     def __init__(self, n, c, p):
@@ -73,7 +72,7 @@ class SWGraph(Graph):
                     sparse.triu(np.random.rand(self.n, self.n) < self.p, k=1))
 
 
-class ABGraph(Graph):
+class ABGraph(MyGraph):
 
 
     def __init__(self, n, n0, m):
@@ -128,3 +127,74 @@ def from_adjlist(fname):
     net = sparse.csc_matrix((np.ones(net_inds.shape[0], dtype=np.uint32), (net_inds[:,0], net_inds[:,1])), shape=(netn, netn))
 
     return net
+
+
+
+def parse_el(fname, directed=False, weighted=False, indexing=1):
+    """
+    Accepts the contents of an edge list file with the comments already removed.
+    Parses an edge list and returns a populated MyGraph() object. Additionally
+    writes a link list file to mapeq/graphs/ if it does not exist there.
+    """
+
+    with open("el_raw/"+fname, "r") as f:
+        lines = f.readlines()
+
+    n = int(lines[0][4:])
+
+    A = sparse.csc_matrix((n,n))
+
+    for line in lines[1:]:
+
+        spl = line.split()
+
+        j = int(spl[0])-indexing
+        i = int(spl[1])-indexing
+
+        if not weighted:
+            A[i,j] = 1
+        else:
+            A[i,j] = int(spl[2])
+
+    G = MyGraph()
+    G.load(A)
+
+    if not directed:
+        G.symmetrize()
+
+    if not exists("mapeq/graphs/"+fname):
+        write_LL(G.adj, fname=fname.split(".")[0])
+
+    return G
+
+
+def swus_powergrid_graph():
+    """
+    https://toreopsahl.com/datasets/#uspowergrid
+    """
+
+    return parse_el("swuspg.txt")
+
+
+def jazz_musicians_graph():
+    """
+    http://deim.urv.cat/~alexandre.arenas/data/welcome.htm
+    """
+
+    return parse_el("jazz.txt")
+
+
+def pgp_graph():
+    """
+    http://deim.urv.cat/~alexandre.arenas/data/welcome.htm
+    """
+
+    return parse_el("pgp.txt")
+
+
+def rome_graph():
+    """
+    http://www.dis.uniroma1.it/~challenge9
+    """
+
+    return parse_el("rome.txt", directed=True)

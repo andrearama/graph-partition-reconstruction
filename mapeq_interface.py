@@ -9,7 +9,7 @@ def write_LL(A, fname="A"):
     http://www.mapequation.org/code.html#Link-list-format
     """
 
-    ii,jj = np.where(A!=0)
+    ii,jj = A.nonzero()
 
     with open("mapeq/graphs/"+fname+".txt", "w") as f:
 

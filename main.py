@@ -9,21 +9,25 @@ from reconstruct.utils import *
 from community1 import *
 from info import *
 from mapeq_interface import *
+from graphgen import *
 import networkx as nx
 import numpy as np
 
 
-G = nx.karate_club_graph()
+#G = nx.karate_club_graph()
 #G = nx.davis_southern_women_graph()
 #G = nx.florentine_families_graph()
 #G = nx.connected_caveman_graph(8, 6)
+#A = nx.to_scipy_sparse_matrix(G, format='csc') # csc since we are primarily interested in multiplying/normalizing columns
+
+G = rome_graph()
+A = G.adj
+G = G.to_nx()
 G, labels = scrub_graph(G)
-A = nx.to_scipy_sparse_matrix(G, format='csc') # csc since we are primarily interested in multiplying/normalizing columns
-#A = nx.to_numpy_matrix(G) # Adjacency matrix (might consider to use 'to_scipy_sparse_matrix' as well)
 
 partition = louvain(G)
 communities = list_subgraphs(partition)
-print(communities)
+#print(communities)
 
 print()
 
@@ -32,15 +36,15 @@ Pgs = compute_Pgs(A, communities)
 
 o2p_lambdas1 = o2p_lambdas(P0, Pgs)
 print(o2p_lambdas1)
-o2p_lambdas2 = optimize_lambdas(P0, Pgs, dir="o2p")
-print(o2p_lambdas2)
+#o2p_lambdas2 = optimize_lambdas(P0, Pgs, dir="o2p")
+#print(o2p_lambdas2)
 
 print()
 
 p2o_lambdas1 = p2o_lambdas(P0, Pgs)
 print(p2o_lambdas1)
-p2o_lambdas2 = optimize_lambdas(P0, Pgs, dir="p2o")
-print(p2o_lambdas2)
+#p2o_lambdas2 = optimize_lambdas(P0, Pgs, dir="p2o")
+#print(p2o_lambdas2)
 
 print()
 
