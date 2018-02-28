@@ -20,7 +20,10 @@ import numpy as np
 #G = nx.connected_caveman_graph(8, 6)
 #A = nx.to_scipy_sparse_matrix(G, format='csc') # csc since we are primarily interested in multiplying/normalizing columns
 
-G = rome_graph()
+#G = rome_graph()
+#G = swuspg_graph()
+#G = jazz_graph()
+G = pgp_graph()
 A = G.adj
 G = G.to_nx()
 G, labels = scrub_graph(G)

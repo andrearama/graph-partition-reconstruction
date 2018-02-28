@@ -34,9 +34,19 @@ def compute_Pg(A, node_list, dim):
     Astar = sparse.csr_matrix((data, Acsr.indices.copy(), Acsr.indptr.copy()),
                                                     shape=Acsr.shape)
 
-    _, v = sparse.linalg.eigs(Astar, k=1, which='LM')
-    Pg_part = (v/v.sum()).real
+    _, v = sparse.linalg.eigs(Astar, k=1, which='LM', tol=1e-25)
 
+  ####
+  # admittedly super hacky, but essential if you want to avoid NaNs. I think the
+  # small negative numbers that arise sometimes (likely just rounding errors but
+  # not sure) are confusing the log() calculation, or else being interpreted as
+  # zero and raising DivideByZero errors. We should figure out a way to get the
+  # eigenvector that doesn't have these issues.
+    v = np.abs(v)
+    v = np.around(v, decimals=12)
+  ####
+
+    Pg_part = (v/v.sum()).real
     for j,i in enumerate(node_list):
         Pg[i] = Pg_part[j]
 

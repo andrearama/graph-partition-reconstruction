@@ -14,7 +14,7 @@ class MyGraph(object):
 
 
     def load(self, m):
-        self.adj = sparse.csc_matrix(m)
+        self.adj = sparse.csc_matrix(m, dtype=np.float64)
         self.n = self.adj.shape[0] # assume square
 
 
@@ -168,7 +168,7 @@ def parse_el(fname, directed=False, weighted=False, indexing=1):
     return G
 
 
-def swus_powergrid_graph():
+def swuspg_graph():
     """
     https://toreopsahl.com/datasets/#uspowergrid
     """
@@ -176,7 +176,7 @@ def swus_powergrid_graph():
     return parse_el("swuspg.txt")
 
 
-def jazz_musicians_graph():
+def jazz_graph():
     """
     http://deim.urv.cat/~alexandre.arenas/data/welcome.htm
     """
