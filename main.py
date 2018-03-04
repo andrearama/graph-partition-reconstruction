@@ -9,12 +9,13 @@ import matplotlib.pyplot as plt
 
 
 # Graphs we want to analyze:
+# The commented graphs give me an error when using "sparse.linalg.eigs"
 graphs = []
 graphs.append( nx.karate_club_graph())
 graphs.append( nx.davis_southern_women_graph())
 #graphs.append( nx.florentine_families_graph()) 
 graphs.append( nx.connected_caveman_graph(8, 6))
-
+                            
 #graphs.append( rome_graph())
 #graphs.append( swuspg_graph())
 #graphs.append( jazz_graph())
