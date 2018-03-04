@@ -8,7 +8,7 @@ from reconstruct.utils import *
 import networkx as nx
 import matplotlib.pyplot as plt
 from graphgen import MyGraph
-
+from lab_prop import *
 def kl_divergence(P0, P1):
     """
     Returns (1) the Kullback-Leibler divergence (K[P0 ; P1]).
@@ -105,25 +105,35 @@ def map_colors(communities, n):
 
 
 def partition_and_divergence(G,mode = 'louvain',plot_graph = False):
-    
+    """
+    Divides the graph in partitions according to a certain algorithm, then 
+    computes the new probabilities and retrieves the two kullback leibler divergences 
+    """
     if type(G) == MyGraph:
         A = G.adj
         G = G.to_nx()
         G, labels = scrub_graph(G)
     elif type(G) == nx.classes.graph.Graph:
+        G, labels = scrub_graph(G)
         A = nx.to_scipy_sparse_matrix(G, format='csc')
     else:
         raise BaseException('Unable to identify the type of graph input')
-
+    
         
     if mode == 'louvain':
         partition = louvain(G)
+        communities = list_subgraphs(partition)
     elif mode == 'mapeq':
         print("Ehm, I should do the partition with mapeq but not sure how to call the function")
+    elif mode == 'label_prop':
+        partition = label_propagation_communities(G)
+        communities = []
+        for i in partition: 
+            communities.append(list(i))
     else:
         raise NameError('Mode not detected. \n Please select a suitable mode (default: louvain)') 
         
-    communities = list_subgraphs(partition)
+    
     #print(communities)
     
     print()
