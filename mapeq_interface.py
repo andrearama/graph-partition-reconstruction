@@ -30,12 +30,19 @@ def run_infomap(src_name, src_ext=".txt", options=[ "-dp", "0.15", "--silent"]):
     proc = sp.run(
         ["./mapeq/Infomap", "mapeq/graphs/"+src_name+src_ext, "mapeq/out/"]
                                                                     + options)
-    return parse_results("mapeq/out/"+src_name+".tree")
+    results = parse_results("mapeq/out/"+src_name+".tree")
+    res_w_names = enum_partitions(results)
+    return res_w_names
 
 
 
 def parse_results(fname):
-    with open("mapeq/out/"+src_name+".tree", "r") as f:
+    """
+    Parse the results of the map equation script into a form like the other
+    methods we use.
+    """
+
+    with open(fname, "r") as f:
         lines = f.readlines()
 
     lines = [line for line in lines if line[0]!="#"]  # remove comment lines
@@ -57,5 +64,38 @@ def parse_results(fname):
             except:
                 pass
         partition_levels[lvl] = partition_levels[lvl][:max_prt] # limit to only those partitions where nodes were added
+        for p in range(max_prt):
+            partition_levels[lvl][p].sort()  # sort each partition so nodes are in order. not sure if necessary
 
-    return partition_levels # a list (partitionings) of lists (partitions) of lists (nodes)
+    return partition_levels # a list (levels) of lists (partitions) of lists (nodes)
+
+
+def enum_partitions(results):
+    """
+    Return a dict where the keys are indices (1st, 2nd, 3rd...) and the
+    values are the partitionings at those levels.
+    """
+
+    out = {} # dict
+    for i,part in enumerate(results)
+        lvl = i+1
+        suffix = count_suffix(lvl)
+        out[str(i)+suffix] = part
+    return out
+
+
+def count_suffix(n):
+    """
+    Return the appropriate suffix for a number when counting.
+    """
+
+    if n%100 <= 13 and n%100 >= 11: # special case 11th, 12th, 13th
+        return "th"
+    elif n%10==1:
+        return "st"
+    elif n%10==2:
+        return "nd"
+    elif n%10==3:
+        return "rd"
+
+    return "th"
