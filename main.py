@@ -21,7 +21,7 @@ graphs.append( nx.connected_caveman_graph(8, 6))
 #graphs.append( swuspg_graph())
 #graphs.append( jazz_graph())
 
-run_infomap("ninetriangles")
+print(run_infomap("ninetriangles", ".net"))
 
 """
 shapes = ['^','o'] #One for each community detection algorithm

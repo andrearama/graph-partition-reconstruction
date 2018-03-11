@@ -46,56 +46,41 @@ def parse_results(fname):
         lines = f.readlines()
 
     lines = [line for line in lines if line[0]!="#"]  # remove comment lines
-    nodes = [line.split()[3] for line in lines]  # get node indices
+    nodes = [int(line.split()[3]) for line in lines]  # get node indices
     node_assgn = [line.split()[0] for line in lines]  # get node-partition assignments
-    partitions = [p.split(":") for p in node_assgn]  # split node-partition assignments by level
-    max_lvl = max(list(map(len, partitions)))  # get max number of partitions
+    partitions = [list(map(int, p.split(":"))) for p in node_assgn]  # split node-partition assignments by level
+    partitions = square_out_partitions(partitions) # not sure if needed
+    max_per_lvl = np.max(partitions, axis=0)
 
-    partition_levels = []
-    for lvl in range(max_lvl): # step through level depths
-        max_prt = 0
-        partition_levels.append([[]]*len(node_assgn))  # assume the limit where each node is in its own partition
-        for n,p in zip(node_assgn, partitions):  # awful naming scheme, I know.
-            try:  # p[lvl] won't exist for all (p, lvl) because they are not all same length
-                prt = int(p[lvl])
-                partition_levels[lvl][prt-1].append(int(n)) # add node to partition where it belongs
-                if max_prt < prt:
-                    max_prt = prt
-            except:
-                pass
-        partition_levels[lvl] = partition_levels[lvl][:max_prt] # limit to only those partitions where nodes were added
-        for p in range(max_prt):
-            partition_levels[lvl][p].sort()  # sort each partition so nodes are in order. not sure if necessary
+    for i in range(1, partitions.shape[1]):
+        partitions[:,i] += (partitions[:,i-1]-1)*max_per_lvl[i]
+    partitions -= 1
 
-    return partition_levels # a list (levels) of lists (partitions) of lists (nodes)
+    partition_levels = [[[] for _ in range(max(partitions[:,i])+1)] for i in range(partitions.shape[1])]
+    for lvl in range(partitions.shape[1]):
+        for n,p in zip(nodes, partitions):
+            prt = p[lvl]
+            partition_levels[lvl][prt].append(n)
 
+    for i,part in enumerate(partition_levels):
+        partition_levels[i] = [p for p in part if len(p)>0]
+
+    return partition_levels
 
 def enum_partitions(results):
     """
-    Return a dict where the keys are indices (1st, 2nd, 3rd...) and the
+    Return a dict where the keys are indices (0, 1, 2, ...) and the
     values are the partitionings at those levels.
     """
 
     out = {} # dict
-    for i,part in enumerate(results)
-        lvl = i+1
-        suffix = count_suffix(lvl)
-        out[str(i)+suffix] = part
+    for i,part in enumerate(results):
+        out[i] = part
     return out
 
-
-def count_suffix(n):
-    """
-    Return the appropriate suffix for a number when counting.
-    """
-
-    if n%100 <= 13 and n%100 >= 11: # special case 11th, 12th, 13th
-        return "th"
-    elif n%10==1:
-        return "st"
-    elif n%10==2:
-        return "nd"
-    elif n%10==3:
-        return "rd"
-
-    return "th"
+def square_out_partitions(partitions):
+    max_lvl = max(map(len, partitions))
+    for p in partitions:
+        while len(p) < max_lvl:
+            p.append(0)
+    return np.array(partitions)
