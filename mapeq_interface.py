@@ -77,7 +77,7 @@ def enum_partitions(results):
     """
 
     out = {} # dict
-    for i,part in enumerate(results)
+    for i, part in enumerate(results):
         lvl = i+1
         suffix = count_suffix(lvl)
         out[str(i)+suffix] = part
