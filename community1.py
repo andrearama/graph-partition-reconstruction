@@ -40,7 +40,6 @@ def create_Ag(A, node_list):
     """
 
     Ag1 = A.copy()
-
     Ag2 = Ag1.tocsr()[node_list,:]
     Ag  = Ag2.tocsc()[:,node_list]
 

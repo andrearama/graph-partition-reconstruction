@@ -1,6 +1,8 @@
 import numpy as np
 import subprocess as sp
 from os import getcwd
+from os.path import exists
+import networkx as nx
 
 
 def write_LL(A, fname="A"):
@@ -17,7 +19,7 @@ def write_LL(A, fname="A"):
             f.write("{} {} {}\n".format(j+1, i+1, A[i,j]))
 
 
-def run_infomap(src_name, src_ext=".txt", options=[ "-dp", "0.15", "--silent"]):
+def run_infomap(G, src_ext=".txt", options=[ "-dp", "0.15", "--silent"]):
     """
     Run Infomap on the given file (should be housed in mapeq/graphs/).
 
@@ -26,6 +28,11 @@ def run_infomap(src_name, src_ext=".txt", options=[ "-dp", "0.15", "--silent"]):
     there, that "graphs" is populated with graph input files, and that this
     function is called from the main directory.
     """
+
+    src_name = G.name
+    adj = nx.to_scipy_sparse_matrix(G, format='csc')
+
+    write_LL(adj, fname=src_name)
 
     proc = sp.run(
         ["./mapeq/Infomap", "mapeq/graphs/"+src_name+src_ext, "mapeq/out/"]
@@ -60,7 +67,7 @@ def parse_results(fname):
     for lvl in range(partitions.shape[1]):
         for n,p in zip(nodes, partitions):
             prt = p[lvl]
-            partition_levels[lvl][prt].append(n)
+            partition_levels[lvl][prt].append(n-1)
 
     for i,part in enumerate(partition_levels):
         partition_levels[i] = [p for p in part if len(p)>0]

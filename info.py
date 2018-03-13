@@ -9,6 +9,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from graphgen import MyGraph
 from lab_prop import *
+from mapeq_interface import *
+
 def kl_divergence(P0, P1):
     """
     Returns (1) the Kullback-Leibler divergence (K[P0 ; P1]).
@@ -37,7 +39,12 @@ def compute_Pg(A, node_list, dim):
     Astar = sparse.csr_matrix((data, Acsr.indices.copy(), Acsr.indptr.copy()),
                                                     shape=Acsr.shape)
 
-    _, v = sparse.linalg.eigs(Astar, k=1, which='LM', tol=1e-25)
+    try:
+        _, v = sparse.linalg.eigs(Astar, k=1, which='LM', tol=1e-25)
+        v = np.abs(v)
+    except ValueError:
+        _, v = np.linalg.eig(Astar.toarray())
+        v = np.abs(v[0])
 
   ####
   # admittedly super hacky, but essential if you want to avoid NaNs. I think the
@@ -45,7 +52,6 @@ def compute_Pg(A, node_list, dim):
   # not sure) are confusing the log() calculation, or else being interpreted as
   # zero and raising DivideByZero errors. We should figure out a way to get the
   # eigenvector that doesn't have these issues.
-    v = np.abs(v)
     v = np.around(v, decimals=12)
   ####
 
@@ -104,10 +110,10 @@ def map_colors(communities, n):
     return colors
 
 
-def partition_and_divergence(G,mode = 'louvain',plot_graph = False):
+def get_partition_levels(G, mode = 'louvain', plot_graph = False):
     """
-    Divides the graph in partitions according to a certain algorithm, then 
-    computes the new probabilities and retrieves the two kullback leibler divergences 
+    Divides the graph in partitions according to a certain algorithm, then
+    computes the new probabilities and retrieves the two kullback leibler divergences
     """
     if type(G) == MyGraph:
         A = G.adj
@@ -118,52 +124,55 @@ def partition_and_divergence(G,mode = 'louvain',plot_graph = False):
         A = nx.to_scipy_sparse_matrix(G, format='csc')
     else:
         raise BaseException('Unable to identify the type of graph input')
-    
-        
+
+    levels = []
+
     if mode == 'louvain':
         partition = louvain(G)
         communities = list_subgraphs(partition)
+        levels.append(communities)
     elif mode == 'mapeq':
-        print("Ehm, I should do the partition with mapeq but not sure how to call the function")
+        partitions = run_infomap(G)
+        for lvl in sorted(partitions.keys()):
+            levels.append(partitions[lvl])
     elif mode == 'label_prop':
         partition = label_propagation_communities(G)
         communities = []
-        for i in partition: 
+        for i in partition:
             communities.append(list(i))
+        levels.append(communities)
     else:
-        raise NameError('Mode not detected. \n Please select a suitable mode (default: louvain)') 
-        
-    
-    #print(communities)
-    
-    print()
-    
-    P0 = compute_Pg(A, list(range(A.shape[0])), A.shape[0])
-    Pgs = compute_Pgs(A, communities)
-    
-    o2p_lambdas1 = o2p_lambdas(P0, Pgs)
-    print(o2p_lambdas1)
-    #o2p_lambdas2 = optimize_lambdas(P0, Pgs, dir="o2p")
-    #print(o2p_lambdas2)
-    
-    print()
-    
-    p2o_lambdas1 = p2o_lambdas(P0, Pgs)
-    print(p2o_lambdas1)
-    #p2o_lambdas2 = optimize_lambdas(P0, Pgs, dir="p2o")
-    #print(p2o_lambdas2)
-    
-    print()
-    
-    o2p_Pstar = compute_Pstar(Pgs, o2p_lambdas1)
-    p2o_Pstar = compute_Pstar(Pgs, p2o_lambdas1)
-    print(kl_divergence(P0, o2p_Pstar)) 
-    print(kl_divergence(p2o_Pstar, P0))
-    
-    if plot_graph:
-        draw_graph(G, communities)
+        raise NameError('Mode not detected. \n Please select a suitable mode (default: louvain)')
 
-    return kl_divergence(P0, o2p_Pstar),kl_divergence(p2o_Pstar, P0) 
+    return levels
+
+
+def get_partition_divergences(G, levels):
+
+    G, labels = scrub_graph(G)
+    A = nx.to_scipy_sparse_matrix(G, format='csc')
+
+    klo2p = []
+    klp2o = []
+
+    for communities in levels:
+        P0 = compute_Pg(A, list(range(A.shape[0])), A.shape[0])
+        try:
+            Pgs = compute_Pgs(A, communities)
+        except:
+            draw_graph(G, communities)
+
+        o2p_lambdas1 = o2p_lambdas(P0, Pgs)
+
+        p2o_lambdas1 = p2o_lambdas(P0, Pgs)
+
+        o2p_Pstar = compute_Pstar(Pgs, o2p_lambdas1)
+        p2o_Pstar = compute_Pstar(Pgs, p2o_lambdas1)
+
+        klo2p.append(kl_divergence(P0, o2p_Pstar))
+        klp2o.append(kl_divergence(p2o_Pstar, P0))
+
+    return klo2p, klp2o
 
 
 

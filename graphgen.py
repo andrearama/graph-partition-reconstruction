@@ -32,6 +32,7 @@ class MyGraph(object):
         return nx.convert_matrix.from_scipy_sparse_matrix(self.adj)
 
 
+
 class ERGraph(MyGraph):
 
 
@@ -165,7 +166,7 @@ def parse_el(fname, directed=False, weighted=False, indexing=1):
     if not exists("mapeq/graphs/"+fname):
         write_LL(G.adj, fname=fname.split(".")[0])
 
-    return G
+    return G.to_nx()
 
 
 def swuspg_graph():
