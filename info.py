@@ -52,7 +52,7 @@ def compute_Pg(A, node_list, dim):
   # not sure) are confusing the log() calculation, or else being interpreted as
   # zero and raising DivideByZero errors. We should figure out a way to get the
   # eigenvector that doesn't have these issues.
-    v = np.around(v, decimals=12)
+    #v = np.around(v, decimals=12)
   ####
 
     Pg_part = (v/v.sum()).real

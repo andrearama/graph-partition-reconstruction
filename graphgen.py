@@ -12,29 +12,32 @@ class MyGraph(object):
         self.adj = None
         self.n = 0
 
-
     def load(self, m):
         self.adj = sparse.csc_matrix(m, dtype=np.float64)
         self.n = self.adj.shape[0] # assume square
-
 
     def degree_distribution(self):
         dist = self.adj.sum(axis=0).A1
 
         return dist
 
-
     def symmetrize(self):
         self.adj = self.adj.maximum(self.adj.transpose())
-
 
     def to_nx(self):
         return nx.convert_matrix.from_scipy_sparse_matrix(self.adj)
 
+    def to_el(self, fname):
+        ii,jj = self.adj.nonzero()
+
+        with open("el_raw/"+fname+".txt", "w") as f:
+            f.write("# N {:d}\n".format(self.adj.shape[0]))
+
+            for i,j in zip(ii, jj):
+                f.write("{} {} {}\n".format(j+1, i+1, int(self.adj[i,j])))
 
 
 class ERGraph(MyGraph):
-
 
     def __init__(self, n, p):
         super().__init__()
@@ -48,7 +51,6 @@ class ERGraph(MyGraph):
 
 class SWGraph(MyGraph):
 
-
     def __init__(self, n, c, p):
         assert c%2==0
         super().__init__()
@@ -59,22 +61,25 @@ class SWGraph(MyGraph):
         self.adj = sparse.dia_matrix((n,n))
 
         for k in range(1,int(c/2)+1):
-            self.adj.setdiag(1,k)
-            self.adj.setdiag(1,n-k)
-
-        self.new_connections()
-        self.symmetrize()
-
+            self.adj.setdiag(1,k) # set upper triangle for simplicity, symmetrize at end
         self.adj = self.adj.tocsc()
 
+        self.new_connections()
+
+        self.symmetrize()
 
     def new_connections(self):
-        self.adj = self.adj.maximum(
-                    sparse.triu(np.random.rand(self.n, self.n) < self.p, k=1))
+        ii,jj = self.adj.nonzero()
+        for i,j in zip(ii,jj):
+            if np.random.rand() < self.p:
+                empty_slots = np.where(self.adj.getcol(j).todense().flatten()==0)[0]
+                candidate_positions = empty_slots[np.where(empty_slots<j)] # only operate on upper triangle
+                new_i = np.random.choice(candidate_positions)
+                self.adj[i,j] = 0
+                self.adj[new_i, j] = 1
 
 
 class ABGraph(MyGraph):
-
 
     def __init__(self, n, n0, m):
         assert n0 >= m
@@ -83,7 +88,6 @@ class ABGraph(MyGraph):
         self.m = m
 
         self.grow(n0)
-
 
     def grow(self, n0):
 
@@ -128,7 +132,6 @@ def from_adjlist(fname):
     net = sparse.csc_matrix((np.ones(net_inds.shape[0], dtype=np.uint32), (net_inds[:,0], net_inds[:,1])), shape=(netn, netn))
 
     return net
-
 
 
 def parse_el(fname, directed=False, weighted=False, indexing=1):
@@ -199,3 +202,12 @@ def rome_graph():
     """
 
     return parse_el("rome.txt", directed=True)
+
+def ergr_graph():
+    return parse_el("ergr-N2500-P0.002.txt")
+
+def swgr_graph():
+    return parse_el("swgr-N2500-C12-P0.10.txt")
+
+def abgr_graph():
+    return parse_el("abgr-N2500-N012-M3.txt")
